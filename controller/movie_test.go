@@ -44,6 +44,14 @@ func (s *movieControllerSuite) TestGetMoviesReturnsStatusOk() {
 	assert.Equal(s.T(), http.StatusOK, s.rec.Code)
 }
 
+func (s *movieControllerSuite) TestGetMoviesCallsMovieService() {
+	s.mockMovieService.On("FetchMovies").Return([]model.Movie{}, nil)
+
+	s.controller.GetMovies(s.context)
+
+	s.mockMovieService.AssertExpectations(s.T())
+}
+
 func (s *movieControllerSuite) TestGetMoviesReturnsMovies() {
 	s.mockMovieService.On("FetchMovies").Return([]model.Movie{
 		{
@@ -60,4 +68,12 @@ func (s *movieControllerSuite) TestGetMoviesReturnsMovies() {
 	assert.Equal(s.T(), 1, len(actual))
 	assert.Equal(s.T(), 1, actual[0].ID)
 	assert.Equal(s.T(), "Spiderman", actual[0].Title)
+}
+
+func (s *movieControllerSuite) TestGetMoviesReturnsErrorWhenMovieServiceReturnsError() {
+	s.mockMovieService.On("FetchMovies").Return(new([]model.Movie), assert.AnError)
+
+	err := s.controller.GetMovies(s.context)
+
+	assert.Error(s.T(), err)
 }

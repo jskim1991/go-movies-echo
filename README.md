@@ -12,3 +12,7 @@ Testing
 - Testify Mock
 - Mockery (Optional)
 - Integration Test
+
+Further Discussion
+- Database Testing
+- File naming conventions

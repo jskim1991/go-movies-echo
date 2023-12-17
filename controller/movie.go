@@ -11,7 +11,10 @@ type MovieController struct {
 }
 
 func (m *MovieController) GetMovies(c echo.Context) error {
-	movies, _ := m.MovieService.FetchMovies()
+	movies, err := m.MovieService.FetchMovies()
+	if err != nil {
+		return err
+	}
 
 	return c.JSON(http.StatusOK, movies)
 }
