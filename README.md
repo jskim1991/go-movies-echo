@@ -14,5 +14,6 @@ Testing
 - Integration Test
 
 Further Discussion
+- Echo Middleware
 - Database Testing
 - File naming conventions
