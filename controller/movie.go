@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/labstack/echo/v4"
-	"movies-service/service"
+	"movie-service/service"
 	"net/http"
 )
 

@@ -1,6 +1,6 @@
 package model
 
 type Movie struct {
-	ID    int
-	Title string
+	Id    int    `json:"id"`
+	Title string `json:"title"`
 }

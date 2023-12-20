@@ -5,75 +5,89 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"movies-service/mocks"
-	"movies-service/model"
+	"movie-service/mocks"
+	"movie-service/model"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-type movieControllerSuite struct {
+type movieControllerTestSuite struct {
 	suite.Suite
-	rec              *httptest.ResponseRecorder
-	context          echo.Context
-	mockMovieService mocks.MockMovieService
-	controller       MovieController
+	rec     *httptest.ResponseRecorder
+	context echo.Context
 }
 
-func TestMovieControllerSuite(t *testing.T) {
-	suite.Run(t, new(movieControllerSuite))
+func TestMovieControllerTestSuite(t *testing.T) {
+	suite.Run(t, new(movieControllerTestSuite))
 }
 
-func (s *movieControllerSuite) SetupTest() {
+func (s *movieControllerTestSuite) SetupTest() {
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/movies", nil)
 	s.rec = httptest.NewRecorder()
 	s.context = e.NewContext(req, s.rec)
-
-	s.mockMovieService = mocks.MockMovieService{}
-	s.controller = MovieController{
-		MovieService: &s.mockMovieService,
-	}
 }
 
-func (s *movieControllerSuite) TestGetMoviesReturnsStatusOk() {
-	s.mockMovieService.On("FetchMovies").Return([]model.Movie{}, nil)
+func (s *movieControllerTestSuite) TearDownTest() {
+	// after each
+}
 
-	s.controller.GetMovies(s.context)
+func (s *movieControllerTestSuite) TestGetMoviesReturnsStatusOk() {
+	mockMovieService := mocks.MockMovieService{}
+	mockMovieService.On("FetchMovies").Return([]model.Movie{}, nil)
+	movieController := MovieController{
+		MovieService: &mockMovieService,
+	}
 
+	err := movieController.GetMovies(s.context)
+
+	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), http.StatusOK, s.rec.Code)
 }
 
-func (s *movieControllerSuite) TestGetMoviesCallsMovieService() {
-	s.mockMovieService.On("FetchMovies").Return([]model.Movie{}, nil)
-
-	s.controller.GetMovies(s.context)
-
-	s.mockMovieService.AssertExpectations(s.T())
-}
-
-func (s *movieControllerSuite) TestGetMoviesReturnsMovies() {
-	s.mockMovieService.On("FetchMovies").Return([]model.Movie{
+func (s *movieControllerTestSuite) TestGetMoviesReturnsMovies() {
+	mockMovieService := mocks.MockMovieService{}
+	mockMovieService.On("FetchMovies").Return([]model.Movie{
 		{
-			ID:    1,
-			Title: "Spiderman",
+			Id:    12,
+			Title: "Last Samurai",
 		},
 	}, nil)
+	movieController := MovieController{
+		MovieService: &mockMovieService,
+	}
 
-	s.controller.GetMovies(s.context)
+	movieController.GetMovies(s.context)
 
 	var actual []model.Movie
 	json.Unmarshal(s.rec.Body.Bytes(), &actual)
 
 	assert.Equal(s.T(), 1, len(actual))
-	assert.Equal(s.T(), 1, actual[0].ID)
-	assert.Equal(s.T(), "Spiderman", actual[0].Title)
+	assert.Equal(s.T(), 12, actual[0].Id)
+	assert.Equal(s.T(), "Last Samurai", actual[0].Title)
 }
 
-func (s *movieControllerSuite) TestGetMoviesReturnsErrorWhenMovieServiceReturnsError() {
-	s.mockMovieService.On("FetchMovies").Return(new([]model.Movie), assert.AnError)
+func (s *movieControllerTestSuite) TestGetMoviesCallsMovieService() {
+	mockMovieService := mocks.MockMovieService{}
+	mockMovieService.On("FetchMovies").Return([]model.Movie{}, nil)
+	movieController := MovieController{
+		MovieService: &mockMovieService,
+	}
 
-	err := s.controller.GetMovies(s.context)
+	movieController.GetMovies(s.context)
+
+	mockMovieService.AssertNumberOfCalls(s.T(), "FetchMovies", 1)
+}
+
+func (s *movieControllerTestSuite) TestGetMoviesReturnsErrorWhenMovieServiceReturnsError() {
+	mockMovieService := mocks.MockMovieService{}
+	mockMovieService.On("FetchMovies").Return([]model.Movie{}, assert.AnError)
+	movieController := MovieController{
+		MovieService: &mockMovieService,
+	}
+
+	err := movieController.GetMovies(s.context)
 
 	assert.Error(s.T(), err)
 }

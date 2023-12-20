@@ -2,26 +2,31 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
-	"movies-service/controller"
-	"movies-service/service"
+	"github.com/labstack/echo/v4/middleware"
+	"movie-service/controller"
+	"movie-service/repository"
+	"movie-service/service"
 	"net/http"
 )
 
 func main() {
-	e := SetUp()
+	e := configureEcho()
 	e.Start(":8080")
 }
 
-func SetUp() *echo.Echo {
+func configureEcho() *echo.Echo {
 	e := echo.New()
+	e.Pre(middleware.RemoveTrailingSlash())
+	e.Use(middleware.Logger())
 
 	e.GET("/health", func(c echo.Context) error {
 		return c.String(http.StatusOK, "ok")
 	})
 
-	defaultMovieService := service.DefaultMovieService{}
+	dsn := "postgres://postgres:@localhost:5432/movies"
+	defaultMovieService := service.NewMovieService(repository.NewOperations(dsn))
 	movieController := controller.MovieController{
-		MovieService: &defaultMovieService,
+		MovieService: defaultMovieService,
 	}
 	e.GET("/movies", movieController.GetMovies)
 

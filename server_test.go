@@ -1,43 +1,39 @@
 package main
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"net/http"
 	"testing"
 )
 
-type integrationTestSuite struct {
+type serverTestSuite struct {
 	suite.Suite
 }
 
-func TestIntegrationTestSuite(t *testing.T) {
-	suite.Run(t, new(integrationTestSuite))
+func TestServerTestSuite(t *testing.T) {
+	suite.Run(t, new(serverTestSuite))
 }
 
-func (s *integrationTestSuite) SetupSuite() {
+func (s *serverTestSuite) SetupSuite() {
+	e := configureEcho()
+
 	go func() {
-		err := SetUp().Start("localhost:8080")
-		if err != nil {
-			s.T().Fail()
-		}
+		err := e.Start(":8080")
+		fmt.Println(err)
 	}()
 }
 
-func (s *integrationTestSuite) TestHealthEndpoint() {
+func (s *serverTestSuite) TestHealthEndpoint() {
 	resp, err := http.Get("http://localhost:8080/health")
-	if err != nil {
-		s.T().Fail()
-	}
 
+	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), http.StatusOK, resp.StatusCode)
 }
 
-func (s *integrationTestSuite) TestMoviesEndpoint() {
-	resp, err := http.Get("http://localhost:8080/movies")
-	if err != nil {
-		s.T().Fail()
-	}
+func (s *serverTestSuite) TestMoviesEndpoint() {
+	resp, _ := http.Get("http://localhost:8080/movies")
 
 	assert.Equal(s.T(), http.StatusOK, resp.StatusCode)
 }
