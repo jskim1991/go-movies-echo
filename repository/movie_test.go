@@ -15,7 +15,7 @@ import (
 
 type movieRepositoryTestSuite struct {
 	suite.Suite
-	operations *operations
+	repository *postgresRepository
 }
 
 func TestMovieRepositoryTestSuite(t *testing.T) {
@@ -49,11 +49,11 @@ func (s *movieRepositoryTestSuite) SetupSuite() {
 	connStr, err := pgContainer.ConnectionString(ctx)
 	assert.NoError(s.T(), err)
 
-	s.operations = NewOperations(connStr)
+	s.repository = NewOperations(connStr)
 }
 
 func (s *movieRepositoryTestSuite) TestWithTestContainers() {
-	movies, err := s.operations.FindMovies()
+	movies, err := s.repository.FindMovies()
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), 1, len(movies))
 	assert.Equal(s.T(), 99, movies[0].ID)

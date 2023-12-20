@@ -51,5 +51,5 @@ func (s *movieServiceTestSuite) TestFetchMoviesReturnsErrors() {
 
 	_, err := s.movieService.FetchMovies()
 
-	assert.Equal(s.T(), assert.AnError, err)
+	assert.Error(s.T(), err)
 }

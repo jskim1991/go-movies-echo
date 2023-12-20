@@ -6,19 +6,19 @@ import (
 	"movie-service/data"
 )
 
-type operations struct {
+type postgresRepository struct {
 	db *gorm.DB
 }
 
-func NewOperations(connStr string) *operations {
+func NewOperations(connStr string) *postgresRepository {
 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
-	return &operations{db: db}
+	return &postgresRepository{db: db}
 }
 
-func (m *operations) FindMovies() ([]data.MovieEntity, error) {
+func (m *postgresRepository) FindMovies() ([]data.MovieEntity, error) {
 	var movies []data.MovieEntity
 	rows, err := m.db.Raw("SELECT id, name FROM movies").Rows()
 	if err != nil {
