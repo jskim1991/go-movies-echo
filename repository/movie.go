@@ -1,7 +1,11 @@
 package repository
 
-import "movie-service/data"
-
+//go:generate mockery --name MovieRepository
 type MovieRepository interface {
-	FindMovies() ([]data.MovieEntity, error)
+	FindMovies() ([]MovieEntity, error)
+}
+
+type MovieEntity struct {
+	ID   int `gorm:"primaryKey"`
+	Name string
 }

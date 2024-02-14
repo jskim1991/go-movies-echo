@@ -1,23 +1,27 @@
 package service
 
 import (
+	"context"
+	"log/slog"
 	"movie-service/model"
 	"movie-service/repository"
 )
 
+//go:generate mockery --name MovieService
 type MovieService interface {
-	FetchMovies() ([]model.Movie, error)
+	FetchMovies(ctx context.Context) ([]model.Movie, error)
 }
 
 type DefaultMovieService struct {
 	MovieRepository repository.MovieRepository
+	Logger          *slog.Logger
 }
 
-func NewMovieService(movieRepository repository.MovieRepository) *DefaultMovieService {
-	return &DefaultMovieService{MovieRepository: movieRepository}
+func NewMovieService(movieRepository repository.MovieRepository, logger *slog.Logger) *DefaultMovieService {
+	return &DefaultMovieService{MovieRepository: movieRepository, Logger: logger}
 }
 
-func (m *DefaultMovieService) FetchMovies() ([]model.Movie, error) {
+func (m *DefaultMovieService) FetchMovies(ctx context.Context) ([]model.Movie, error) {
 	fetchedMovies, err := m.MovieRepository.FindMovies()
 	if err != nil {
 		return nil, err
@@ -30,6 +34,8 @@ func (m *DefaultMovieService) FetchMovies() ([]model.Movie, error) {
 			Title: movie.Name,
 		})
 	}
+
+	m.Logger.InfoContext(ctx, "Movies returned successfully")
 
 	return movies, nil
 }

@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"log/slog"
 	"movie-service/mocks"
 	"movie-service/model"
 	"net/http"
@@ -16,6 +18,7 @@ type movieControllerTestSuite struct {
 	suite.Suite
 	rec     *httptest.ResponseRecorder
 	context echo.Context
+	logger  *slog.Logger
 }
 
 func TestMovieControllerTestSuite(t *testing.T) {
@@ -26,7 +29,12 @@ func (s *movieControllerTestSuite) SetupTest() {
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/movies", nil)
 	s.rec = httptest.NewRecorder()
-	s.context = e.NewContext(req, s.rec)
+	c := e.NewContext(req, s.rec)
+	s.context = &CustomContext{
+		Context: c,
+		Ctx:     context.TODO(),
+	}
+	s.logger = slog.Default()
 }
 
 func (s *movieControllerTestSuite) TearDownTest() {
@@ -36,9 +44,7 @@ func (s *movieControllerTestSuite) TearDownTest() {
 func (s *movieControllerTestSuite) TestGetMoviesReturnsStatusOk() {
 	mockMovieService := mocks.MockMovieService{}
 	mockMovieService.On("FetchMovies").Return([]model.Movie{}, nil)
-	movieController := MovieController{
-		MovieService: &mockMovieService,
-	}
+	movieController := NewMovieController(&mockMovieService, s.logger)
 
 	err := movieController.GetMovies(s.context)
 
@@ -54,9 +60,7 @@ func (s *movieControllerTestSuite) TestGetMoviesReturnsMovies() {
 			Title: "Last Samurai",
 		},
 	}, nil)
-	movieController := MovieController{
-		MovieService: &mockMovieService,
-	}
+	movieController := NewMovieController(&mockMovieService, s.logger)
 
 	movieController.GetMovies(s.context)
 
@@ -71,9 +75,7 @@ func (s *movieControllerTestSuite) TestGetMoviesReturnsMovies() {
 func (s *movieControllerTestSuite) TestGetMoviesCallsMovieService() {
 	mockMovieService := mocks.MockMovieService{}
 	mockMovieService.On("FetchMovies").Return([]model.Movie{}, nil)
-	movieController := MovieController{
-		MovieService: &mockMovieService,
-	}
+	movieController := NewMovieController(&mockMovieService, s.logger)
 
 	movieController.GetMovies(s.context)
 
@@ -83,9 +85,7 @@ func (s *movieControllerTestSuite) TestGetMoviesCallsMovieService() {
 func (s *movieControllerTestSuite) TestGetMoviesReturnsErrorWhenMovieServiceReturnsError() {
 	mockMovieService := mocks.MockMovieService{}
 	mockMovieService.On("FetchMovies").Return([]model.Movie{}, assert.AnError)
-	movieController := MovieController{
-		MovieService: &mockMovieService,
-	}
+	movieController := NewMovieController(&mockMovieService, s.logger)
 
 	err := movieController.GetMovies(s.context)
 

@@ -3,7 +3,6 @@ package repository
 import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"movie-service/data"
 )
 
 type postgresRepository struct {
@@ -18,8 +17,8 @@ func NewOperations(connStr string) *postgresRepository {
 	return &postgresRepository{db: db}
 }
 
-func (m *postgresRepository) FindMovies() ([]data.MovieEntity, error) {
-	var movies []data.MovieEntity
+func (m *postgresRepository) FindMovies() ([]MovieEntity, error) {
+	var movies []MovieEntity
 	rows, err := m.db.Raw("SELECT id, name FROM movies").Rows()
 	if err != nil {
 		return nil, err
