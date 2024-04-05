@@ -2,7 +2,6 @@ package repository
 
 import "gorm.io/gorm"
 
-//go:generate mockery --name MovieRepository
 type MovieRepository interface {
 	FindMovies() ([]MovieEntity, error)
 }

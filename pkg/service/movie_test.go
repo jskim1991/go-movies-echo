@@ -4,14 +4,14 @@ import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"movie-service/internal/repository"
-	"movie-service/internal/repository/mocks"
+	mocks "movie-service/mocks/movie-service/pkg/repository"
+	"movie-service/pkg/repository"
 	"testing"
 )
 
 type movieServiceTestSuite struct {
 	suite.Suite
-	mockMovieRepository *mocks.MovieRepository
+	mockMovieRepository *mocks.MockMovieRepository
 	movieService        *DefaultMovieService
 }
 
@@ -20,7 +20,7 @@ func TestMovieServiceTestSuite(t *testing.T) {
 }
 
 func (s *movieServiceTestSuite) SetupSubTest() {
-	s.mockMovieRepository = mocks.NewMovieRepository(s.T())
+	s.mockMovieRepository = mocks.NewMockMovieRepository(s.T())
 	s.movieService = NewDefaultMovieService(s.mockMovieRepository)
 }
 

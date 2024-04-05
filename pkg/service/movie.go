@@ -2,11 +2,10 @@ package service
 
 import (
 	"context"
-	"movie-service/internal/repository"
 	"movie-service/model"
+	"movie-service/pkg/repository"
 )
 
-//go:generate mockery --name MovieService
 type MovieService interface {
 	FetchMovies(ctx context.Context) ([]model.Movie, error)
 }

@@ -1,1 +1,7 @@
-with-expecter: True
+with-expecter: true
+packages:
+  movie-service/pkg:
+    config:
+      recursive: true
+      all: true
+

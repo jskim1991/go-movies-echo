@@ -3,8 +3,8 @@ package mocks
 import (
 	"context"
 	"github.com/stretchr/testify/mock"
-	"movie-service/internal/repository"
 	"movie-service/model"
+	"movie-service/pkg/repository"
 )
 
 type MockMovieService struct {

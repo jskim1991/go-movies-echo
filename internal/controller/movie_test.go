@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"movie-service/internal/service/mocks"
+	mocks "movie-service/mocks/movie-service/pkg/service"
 	"movie-service/model"
 	"net/http"
 	"net/http/httptest"
@@ -15,8 +15,9 @@ import (
 
 type movieControllerTestSuite struct {
 	suite.Suite
-	rec     *httptest.ResponseRecorder
-	context echo.Context
+	rec              *httptest.ResponseRecorder
+	context          echo.Context
+	mockMovieService *mocks.MockMovieService
 }
 
 func TestMovieControllerTestSuite(t *testing.T) {
@@ -28,13 +29,14 @@ func (s *movieControllerTestSuite) SetupSubTest() {
 	req := httptest.NewRequest(http.MethodGet, "/movies", nil)
 	s.rec = httptest.NewRecorder()
 	s.context = e.NewContext(req, s.rec)
+
+	s.mockMovieService = mocks.NewMockMovieService(s.T())
 }
 
 func (s *movieControllerTestSuite) TestGetMovies() {
 	s.Run("should return status ok", func() {
-		mockMovieService := mocks.NewMovieService(s.T())
-		mockMovieService.EXPECT().FetchMovies(mock.Anything).Return([]model.Movie{}, nil)
-		movieController := NewMovieController(mockMovieService)
+		s.mockMovieService.EXPECT().FetchMovies(mock.Anything).Return([]model.Movie{}, nil)
+		movieController := NewMovieController(s.mockMovieService)
 
 		err := movieController.GetMovies(s.context)
 
@@ -43,22 +45,20 @@ func (s *movieControllerTestSuite) TestGetMovies() {
 	})
 
 	s.Run("should call movie service", func() {
-		mockMovieService := mocks.NewMovieService(s.T())
-		mockMovieService.EXPECT().FetchMovies(mock.Anything).Return([]model.Movie{}, nil)
-		movieController := NewMovieController(mockMovieService)
+		s.mockMovieService.EXPECT().FetchMovies(mock.Anything).Return([]model.Movie{}, nil)
+		movieController := NewMovieController(s.mockMovieService)
 
 		movieController.GetMovies(s.context)
 	})
 
 	s.Run("should return movies", func() {
-		mockMovieService := mocks.NewMovieService(s.T())
-		mockMovieService.EXPECT().FetchMovies(mock.Anything).Return([]model.Movie{
+		s.mockMovieService.EXPECT().FetchMovies(mock.Anything).Return([]model.Movie{
 			{
 				Id:    12,
 				Title: "Last Samurai",
 			},
 		}, nil)
-		movieController := NewMovieController(mockMovieService)
+		movieController := NewMovieController(s.mockMovieService)
 
 		movieController.GetMovies(s.context)
 
@@ -71,9 +71,8 @@ func (s *movieControllerTestSuite) TestGetMovies() {
 	})
 
 	s.Run("should return error when movie service returns error", func() {
-		mockMovieService := mocks.NewMovieService(s.T())
-		mockMovieService.EXPECT().FetchMovies(mock.Anything).Return([]model.Movie{}, assert.AnError)
-		movieController := NewMovieController(mockMovieService)
+		s.mockMovieService.EXPECT().FetchMovies(mock.Anything).Return([]model.Movie{}, assert.AnError)
+		movieController := NewMovieController(s.mockMovieService)
 
 		err := movieController.GetMovies(s.context)
 

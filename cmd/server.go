@@ -4,9 +4,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"movie-service/internal/controller"
-	"movie-service/internal/repository"
-	"movie-service/internal/service"
 	"movie-service/pkg/db"
+	"movie-service/pkg/repository"
+	"movie-service/pkg/service"
 	"net/http"
 )
 
