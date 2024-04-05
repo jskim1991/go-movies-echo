@@ -24,7 +24,7 @@ func configureEcho() *echo.Echo {
 	e := echo.New()
 	e.Use(middleware.RequestID())
 	e.Pre(middleware.RemoveTrailingSlash())
-	e.Use(addCustomContext())
+	e.Use(addCustomContext(logger))
 	e.Use(middleware.Logger())
 
 	e.GET("/health", func(c echo.Context) error {
@@ -39,18 +39,15 @@ func configureEcho() *echo.Echo {
 	return e
 }
 
-func addCustomContext() echo.MiddlewareFunc {
+func addCustomContext(logger *slog.Logger) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
-
 			requestId := c.Response().Header().Get(echo.HeaderXRequestID)
-			ctx := context.WithValue(context.Background(), "requestId", requestId)
-
+			ctx := context.WithValue(c.Request().Context(), "requestId", requestId)
 			cc := &controller.CustomContext{
 				Context: c,
 				Ctx:     ctx,
 			}
-
 			return next(cc)
 		}
 	}

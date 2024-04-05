@@ -24,6 +24,5 @@ func (m *MovieController) GetMovies(c echo.Context) error {
 	}
 
 	m.logger.InfoContext(cc.Ctx, "Movies fetched successfully")
-
 	return c.JSON(http.StatusOK, movies)
 }

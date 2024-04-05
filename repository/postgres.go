@@ -19,7 +19,7 @@ func NewOperations(connStr string) *postgresRepository {
 
 func (m *postgresRepository) FindMovies() ([]MovieEntity, error) {
 	var movies []MovieEntity
-	rows, err := m.db.Raw("SELECT id, name FROM movies").Rows()
+	rows, err := m.db.Debug().Find(&movies).Rows()
 	if err != nil {
 		return nil, err
 	}

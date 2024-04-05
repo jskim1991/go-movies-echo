@@ -9,3 +9,7 @@ type MovieEntity struct {
 	ID   int `gorm:"primaryKey"`
 	Name string
 }
+
+func (MovieEntity) TableName() string {
+	return "movies"
+}

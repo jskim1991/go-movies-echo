@@ -8,7 +8,8 @@ import (
 
 type CustomContext struct {
 	echo.Context
-	Ctx context.Context
+	RequestId string
+	Ctx       context.Context
 }
 
 type MyHandler struct {
