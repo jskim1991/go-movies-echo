@@ -9,6 +9,7 @@ import (
 	pg "github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"gorm.io/gorm"
+	"movie-service/pkg/db"
 	"path/filepath"
 	"testing"
 	"time"
@@ -29,7 +30,7 @@ func (s *movieRepositoryTestSuite) SetupSuite() {
 
 	pgContainer, err := pg.RunContainer(ctx,
 		testcontainers.WithImage("postgres:15.3-alpine"),
-		pg.WithInitScripts(filepath.Join("..", "testdata", "schema.sql")),
+		pg.WithInitScripts(filepath.Join("..", "..", "testdata", "schema.sql")),
 		pg.WithDatabase("test-db"),
 		pg.WithUsername("postgres"),
 		pg.WithPassword("postgres"),
@@ -53,7 +54,7 @@ func (s *movieRepositoryTestSuite) SetupSuite() {
 		s.T().Fatal(err)
 	}
 	fmt.Println(connStr)
-	gormDB := NewPostgresConnection(connStr)
+	gormDB := db.NewPostgresConnection(connStr)
 	s.db = gormDB
 
 	s.movieRepository = &DefaultMovieRepository{

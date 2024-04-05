@@ -3,9 +3,10 @@ package main
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"movie-service/controller"
-	"movie-service/repository"
-	"movie-service/service"
+	"movie-service/internal/controller"
+	"movie-service/internal/repository"
+	"movie-service/internal/service"
+	"movie-service/pkg/db"
 	"net/http"
 )
 
@@ -25,7 +26,7 @@ func configureEcho() *echo.Echo {
 	})
 
 	dsn := "postgres://postgres:@localhost:5432/movies"
-	postgres := repository.NewPostgresConnection(dsn)
+	postgres := db.NewPostgresConnection(dsn)
 	defaultMovieRepository := repository.NewDefaultMovieRepository(postgres)
 	defaultMovieService := service.NewDefaultMovieService(defaultMovieRepository)
 	movieController := controller.NewMovieController(defaultMovieService)

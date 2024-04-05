@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
+	"movie-service/internal/repository"
 	"movie-service/model"
-	"movie-service/repository"
 )
 
 //go:generate mockery --name MovieService
