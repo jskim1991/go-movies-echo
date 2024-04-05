@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"log/slog"
 	"movie-service/model"
 	"movie-service/repository"
 )
@@ -14,11 +13,10 @@ type MovieService interface {
 
 type DefaultMovieService struct {
 	MovieRepository repository.MovieRepository
-	Logger          *slog.Logger
 }
 
-func NewMovieService(movieRepository repository.MovieRepository, logger *slog.Logger) *DefaultMovieService {
-	return &DefaultMovieService{MovieRepository: movieRepository, Logger: logger}
+func NewDefaultMovieService(movieRepository repository.MovieRepository) *DefaultMovieService {
+	return &DefaultMovieService{MovieRepository: movieRepository}
 }
 
 func (m *DefaultMovieService) FetchMovies(ctx context.Context) ([]model.Movie, error) {
@@ -34,8 +32,6 @@ func (m *DefaultMovieService) FetchMovies(ctx context.Context) ([]model.Movie, e
 			Title: movie.Name,
 		})
 	}
-
-	m.Logger.InfoContext(ctx, "Movies returned successfully")
 
 	return movies, nil
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"log/slog"
 	"movie-service/mocks"
 	"movie-service/repository"
 	"testing"
@@ -22,7 +21,7 @@ func TestMovieServiceTestSuite(t *testing.T) {
 
 func (s *movieServiceTestSuite) SetupTest() {
 	s.mockMovieRepository = mocks.MockMovieRepository{}
-	s.movieService = NewMovieService(&s.mockMovieRepository, slog.Default())
+	s.movieService = NewDefaultMovieService(&s.mockMovieRepository)
 }
 
 func (s *movieServiceTestSuite) TestFetchMoviesCallsMovieRepository() {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"net/http"
@@ -21,7 +20,7 @@ func (s *serverTestSuite) SetupSuite() {
 
 	go func() {
 		err := e.Start(":8080")
-		fmt.Println(err)
+		panic(err)
 	}()
 }
 

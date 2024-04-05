@@ -1,15 +1,12 @@
 package main
 
 import (
-	"context"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"log/slog"
 	"movie-service/controller"
 	"movie-service/repository"
 	"movie-service/service"
 	"net/http"
-	"os"
 )
 
 func main() {
@@ -18,13 +15,9 @@ func main() {
 }
 
 func configureEcho() *echo.Echo {
-	handler := &controller.MyHandler{Handler: slog.NewJSONHandler(os.Stdout, nil)}
-	logger := slog.New(handler)
-
 	e := echo.New()
 	e.Use(middleware.RequestID())
 	e.Pre(middleware.RemoveTrailingSlash())
-	e.Use(addCustomContext(logger))
 	e.Use(middleware.Logger())
 
 	e.GET("/health", func(c echo.Context) error {
@@ -32,23 +25,11 @@ func configureEcho() *echo.Echo {
 	})
 
 	dsn := "postgres://postgres:@localhost:5432/movies"
-	defaultMovieService := service.NewMovieService(repository.NewOperations(dsn), logger)
-	movieController := controller.NewMovieController(defaultMovieService, logger)
+	postgres := repository.NewPostgresConnection(dsn)
+	defaultMovieRepository := repository.NewDefaultMovieRepository(postgres)
+	defaultMovieService := service.NewDefaultMovieService(defaultMovieRepository)
+	movieController := controller.NewMovieController(defaultMovieService)
 	e.GET("/movies", movieController.GetMovies)
 
 	return e
-}
-
-func addCustomContext(logger *slog.Logger) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) (err error) {
-			requestId := c.Response().Header().Get(echo.HeaderXRequestID)
-			ctx := context.WithValue(c.Request().Context(), "requestId", requestId)
-			cc := &controller.CustomContext{
-				Context: c,
-				Ctx:     ctx,
-			}
-			return next(cc)
-		}
-	}
 }
